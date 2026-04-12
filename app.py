@@ -317,8 +317,13 @@ with st.container():
         <label style="display:block;margin-bottom:8px;color:#475569;font-size:.78rem;font-weight:600">Age Group</label>
         <div style="background:white;border:1.5px solid #e2e8f0;border-radius:10px;padding:10px 13px;color:#1e293b;font-size:.88rem;font-weight:500">{ag}</div>""", unsafe_allow_html=True)
     with c4:
-        dom_list = ["Education","Entrepreneurship","Health","Hobbies"]
-        domain   = st.selectbox("Domain", dom_list, index=dom_list.index(st.session_state.domain))
+        dom_list = [
+            "Education", "Entrepreneurship", "Health", "Hobbies",
+            "Gardening", "Programming", "Fitness", "Cooking",
+            "Music", "Art", "Business", "Language Learning",
+            "Personal Finance", "Mental Wellness", "Design", "Photography"
+        ]
+        domain   = st.selectbox("Domain", dom_list, index=dom_list.index(st.session_state.domain) if st.session_state.domain in dom_list else 0)
 
     c5, c6, c7, c8 = st.columns([2.5, 1.3, 1.3, 1.8])
     with c5: goal   = st.text_input("Learning Goal", placeholder="e.g. learn Python, lose weight, start a startup, learn guitar")

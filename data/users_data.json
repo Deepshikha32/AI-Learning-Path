@@ -82,5 +82,52 @@
       "First 5"
     ],
     "streak_days": 2
+  },
+  "930f151c9550ac33": {
+    "display_name": "disha",
+    "age": 22,
+    "domain": "Hobbies",
+    "goal": "dance",
+    "skill": "Beginner",
+    "hours": 1.0,
+    "health": "",
+    "last_seen": "2026-03-23T16:53:23.948166",
+    "sessions": 3,
+    "completed": [
+      "Introduction to classical Indian dance"
+    ],
+    "total_topics": 86,
+    "badges": [],
+    "streak_days": 3
+  },
+  "d6383a354d99dc73": {
+    "display_name": "Learner",
+    "age": 22,
+    "domain": "Education",
+    "goal": "python",
+    "skill": "Beginner",
+    "hours": 1.5,
+    "health": "",
+    "last_seen": "2026-04-11T01:23:14.384565",
+    "sessions": 2,
+    "completed": [],
+    "total_topics": 75,
+    "badges": [],
+    "streak_days": 2
+  },
+  "d2f1e566944cfeaf": {
+    "display_name": "deepu",
+    "age": 22,
+    "domain": "Education",
+    "goal": "python",
+    "skill": "Beginner",
+    "hours": 1.5,
+    "health": "",
+    "last_seen": "2026-04-11T01:27:50.019515",
+    "sessions": 1,
+    "completed": [],
+    "total_topics": 75,
+    "badges": [],
+    "streak_days": 1
   }
 }
