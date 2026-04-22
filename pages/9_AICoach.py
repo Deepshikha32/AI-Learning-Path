@@ -17,7 +17,7 @@ from google.genai import types as genai_types
 import random
 
 st.set_page_config(
-    page_title="LearnPath AI — AI Coach",
+    page_title="LearnPath AI — Your Buddy",
     page_icon="🤖",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -31,53 +31,77 @@ st.markdown("""
 /* ── Global ── */
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif !important;
-    background: #f5f3ff !important;
+    background: #0d1117 !important;
 }
-.stApp { background: #f5f3ff !important; }
+.stApp { background: #0d1117 !important; }
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding: 1.5rem 2.5rem !important; max-width: 100% !important; }
 
+/* ── Style top-level columns as cards ── */
+[data-testid="stColumn"] > div:first-child,
+[data-testid="column"] > div:first-child {
+    background: #161b2d;
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+/* Reset nested columns */
+[data-testid="stColumn"] [data-testid="stColumn"] > div:first-child,
+[data-testid="column"] [data-testid="column"] > div:first-child {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Columns grow to content height only */
+[data-testid="stHorizontalBlock"] { align-items: flex-start !important; }
+
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #2e1065 0%, #4c1d95 60%, #5b21b6 100%) !important;
-    border-right: 1px solid rgba(167,139,250,0.3) !important;
+    background: linear-gradient(180deg, #0f0c29 0%, #1a1a2e 60%, #16213e 100%) !important;
+    border-right: 1px solid rgba(99,102,241,0.2) !important;
 }
-[data-testid="stSidebar"] * { color: #ede9fe !important; }
+[data-testid="stSidebar"] * { color: #c7d2fe !important; }
 [data-testid="stSidebarContent"] { padding: 1rem 0.8rem !important; }
 
 /* ── Base text ── */
-p, li, span, label { color: #3b0764 !important; }
-h1, h2, h3, h4, h5 { color: #1e1b4b !important; }
-strong, b { color: #4c1d95 !important; }
-a { color: #7c3aed !important; }
-a:hover { color: #6d28d9 !important; }
+p, li, span, label { color: #c7d2fe !important; }
+h1, h2, h3, h4, h5 { color: #e0e7ff !important; }
+strong, b { color: #a5b4fc !important; }
+a { color: #818cf8 !important; }
+a:hover { color: #6366f1 !important; }
+a[style*="background"] { color: white !important; }
+a[style*="background"]:hover { color: white !important; opacity: 0.92; }
 
 /* ── Cards ── */
 .card {
-    background: white;
-    border: 1.5px solid #ddd6fe;
+    background: #161b2d;
+    border: 1px solid rgba(99,102,241,0.2);
     border-radius: 18px; padding: 22px;
-    box-shadow: 0 4px 20px rgba(109,40,217,0.08);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
     margin-bottom: 16px;
 }
 .card-title {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 1rem; font-weight: 800; color: #5b21b6 !important;
+    font-size: 1rem; font-weight: 800; color: #e0e7ff !important;
     margin-bottom: 3px;
 }
-.card-sub { font-size: .76rem; color: #7c3aed !important; margin-bottom: 12px; opacity: 0.7; }
+.card-sub { font-size: .76rem; color: #818cf8 !important; margin-bottom: 12px; opacity: 0.85; }
 
 /* ── Chat window ── */
 .chat-wrap {
-    background: #faf5ff;
-    border: 1.5px solid #ddd6fe;
-    border-radius: 16px; padding: 18px;
-    max-height: 440px; overflow-y: auto;
-    margin-bottom: 14px; scroll-behavior: smooth;
+    background: #0f1629;
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 16px; padding: 14px;
+    max-height: 360px; min-height: 80px; overflow-y: auto;
+    margin-bottom: 12px; scroll-behavior: smooth;
 }
 .chat-wrap::-webkit-scrollbar { width: 4px; }
-.chat-wrap::-webkit-scrollbar-track { background: #f3e8ff; }
-.chat-wrap::-webkit-scrollbar-thumb { background: #c4b5fd; border-radius: 4px; }
+.chat-wrap::-webkit-scrollbar-track { background: #1a1f35; }
+.chat-wrap::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
 
 /* ── Bubbles ── */
 .chat-bubble-wrap-user {
@@ -93,78 +117,69 @@ a:hover { color: #6d28d9 !important; }
     display: flex; align-items: center; justify-content: center;
     font-size: 1rem; flex-shrink: 0;
 }
-.avatar-ai   { background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 4px 12px rgba(109,40,217,0.4); }
-.avatar-user { background: linear-gradient(135deg, #a78bfa, #8b5cf6); box-shadow: 0 4px 12px rgba(139,92,246,0.35); }
+.avatar-ai   { background: linear-gradient(135deg, #4f46e5, #6366f1); box-shadow: 0 4px 12px rgba(99,102,241,0.5); }
+.avatar-user { background: linear-gradient(135deg, #6366f1, #818cf8); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
 .bubble-user {
-    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
     color: white; padding: 12px 18px;
     border-radius: 20px 20px 4px 20px;
     max-width: 70%; font-size: .87rem; line-height: 1.65;
-    box-shadow: 0 6px 18px rgba(109,40,217,0.3);
+    box-shadow: 0 6px 18px rgba(99,102,241,0.35);
 }
 .bubble-ai {
-    background: white;
-    border: 1.5px solid #ddd6fe;
-    color: #1e1b4b; padding: 12px 18px;
+    background: #1e2540;
+    border: 1px solid rgba(99,102,241,0.2);
+    color: #e0e7ff; padding: 12px 18px;
     border-radius: 20px 20px 20px 4px;
     max-width: 82%; font-size: .87rem; line-height: 1.7;
-    box-shadow: 0 3px 14px rgba(109,40,217,0.08);
+    box-shadow: 0 3px 14px rgba(0,0,0,0.3);
 }
-/* Code blocks inside AI bubble */
 .bubble-ai pre {
-    background: #f3e8ff !important;
-    border: 1px solid #ddd6fe !important;
-    border-radius: 10px !important;
-    padding: 12px 16px !important;
-    overflow-x: auto !important;
-    margin: 10px 0 !important;
+    background: #0f1629 !important;
+    border: 1px solid rgba(99,102,241,0.2) !important;
+    border-radius: 10px !important; padding: 12px 16px !important;
+    overflow-x: auto !important; margin: 10px 0 !important;
 }
 .bubble-ai code {
-    background: #ede9fe !important;
-    color: #5b21b6 !important;
-    border-radius: 5px !important;
-    padding: 2px 6px !important;
+    background: #1e2540 !important; color: #a5b4fc !important;
+    border-radius: 5px !important; padding: 2px 6px !important;
     font-size: .83rem !important;
-    font-family: 'Fira Code', 'Courier New', monospace !important;
 }
-.bubble-ai pre code {
-    background: transparent !important;
-    padding: 0 !important;
-    color: #4c1d95 !important;
-}
+.bubble-ai pre code { background: transparent !important; padding: 0 !important; color: #c7d2fe !important; }
 
 /* ── Text Input ── */
 .stTextInput > div > div > input {
-    background: white !important;
-    border: 1.5px solid #c4b5fd !important;
+    background: #1e2540 !important;
+    border: 1px solid rgba(99,102,241,0.3) !important;
     border-radius: 14px !important;
-    color: #1e1b4b !important;
+    color: #e0e7ff !important;
     font-size: .9rem !important;
     padding: 14px 18px !important;
-    caret-color: #7c3aed !important;
+    caret-color: #6366f1 !important;
     transition: all 0.2s !important;
 }
-.stTextInput > div > div > input::placeholder { color: #a78bfa !important; opacity: 0.7; }
+.stTextInput > div > div > input::placeholder { color: #4f5b8a !important; opacity: 1; }
 .stTextInput > div > div > input:focus {
-    border-color: #7c3aed !important;
-    box-shadow: 0 0 0 4px rgba(124,58,237,0.12) !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.2) !important;
     outline: none !important;
 }
 
 /* ── Buttons ── */
 .stButton > button {
-    background: linear-gradient(135deg, #7c3aed, #6d28d9) !important;
+    background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
     color: white !important; border: none !important;
     border-radius: 12px !important; font-weight: 700 !important;
-    font-size: .9rem !important;
+    font-size: .9rem !important; height: 44px !important;
+    white-space: nowrap !important; overflow: hidden !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     transition: all 0.2s ease !important;
-    box-shadow: 0 4px 14px rgba(109,40,217,0.3) !important;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.35) !important;
 }
 .stButton > button:hover {
     transform: translateY(-2px) !important;
-    box-shadow: 0 10px 26px rgba(109,40,217,0.45) !important;
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+    box-shadow: 0 10px 26px rgba(99,102,241,0.5) !important;
+    background: linear-gradient(135deg, #6366f1, #818cf8) !important;
 }
 .stButton > button:active { transform: translateY(0) !important; }
 
@@ -173,28 +188,27 @@ a:hover { color: #6d28d9 !important; }
     background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
     box-shadow: 0 4px 12px rgba(220,38,38,0.25) !important;
 }
-.clear-btn button:hover {
-    box-shadow: 0 8px 20px rgba(220,38,38,0.4) !important;
-}
+.clear-btn button:hover { box-shadow: 0 8px 20px rgba(220,38,38,0.4) !important; }
 
 /* ── Onboarding box ── */
 .onboard-box {
-    background: linear-gradient(135deg, #ede9fe, #f3e8ff);
-    border: 1.5px solid #c4b5fd;
+    background: linear-gradient(135deg, #1e2540, #232b4a);
+    border: 1px solid rgba(99,102,241,0.3);
     border-radius: 16px; padding: 20px; margin-bottom: 20px;
 }
 .onboard-title {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 1.1rem; font-weight: 800; color: #4c1d95 !important; margin-bottom: 5px;
+    font-size: 1.1rem; font-weight: 800; color: #e0e7ff !important; margin-bottom: 5px;
 }
-.onboard-desc { font-size: .84rem; color: #6d28d9 !important; }
+.onboard-desc { font-size: .84rem; color: #a5b4fc !important; }
 
 /* ── Rec-box ── */
 .rec-box {
-    background: white; border-left: 4px solid #8b5cf6;
+    background: #1e2540; border-left: 4px solid #6366f1;
     border-radius: 10px; padding: 14px; margin: 8px 0;
-    font-size: .83rem; color: #1e1b4b;
-    box-shadow: 0 1px 6px rgba(109,40,217,0.07);
+    font-size: .83rem; color: #c7d2fe;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.3);
+
 }
 
 /* ── Expander ── */
@@ -239,541 +253,122 @@ if not gemini_api_key:
 # ── AI COACH RESPONSE GENERATOR ──────────────────────────────
 def generate_coach_response(user_message, name, goal, skill_level, user_data, api_key):
     """
-    Generate personalized AI Coach responses using Google Gemini API.
-    Falls back to comprehensive mock logic if no API key is provided.
+    Send every user message directly to Gemini AI — no keyword filtering.
+    Gemini answers all questions: learning suggestions, coding, health, general knowledge, etc.
+    Falls back gracefully if no API key or all models fail.
     """
+    import re
+
+    def fix_youtube_urls(text):
+        """Normalize ALL youtube URLs to proper https://www.youtube.com/results format."""
+        # Pre-clean: remove any double-protocol artifacts from old code
+        text = re.sub(r'https?://www\.https?://', 'https://', text)
+        text = re.sub(r'https?://https?://', 'https://', text)
+
+        def normalize(m):
+            full = m.group(0)
+            q = re.search(r'search_query=([^\s)"\'<>]+)', full)
+            if q:
+                return f"https://www.youtube.com/results?search_query={q.group(1)}"
+            return f"https://www.youtube.com/results?search_query={user_message.replace(' ', '+')}"
+
+        return re.sub(
+            r'(?:https?://)?(?:www\.)?youtube\.com/[^\s)"\'<>]+',
+            normalize,
+            text
+        )
+
     if api_key:
         try:
-            # ── Multi-model fallback: tries best model first ──
+            # Models that work on this account
             _MODELS = [
-                ("gemini-2.0-flash",      True),
-                ("gemini-2.0-flash-lite", True),
-                ("gemma-3-12b-it",        False),  # fast open model first
-                ("gemma-3-27b-it",        False),  # larger backup
+                "gemini-2.5-flash-lite",  # ✅ working, fast, free
+                "gemini-2.5-flash",       # retry on 503
+                "gemini-flash-lite-latest",
             ]
             client = genai_new.Client(api_key=api_key)
 
-            system_instruction = f"""You are {name}'s AI Learning Coach (skill: {skill_level}, goal: {goal}).
-Answer any question concisely with emojis and bullet points. Be warm and encouraging.
-For YouTube playlists: ONLY use search URLs like https://www.youtube.com/results?search_query=TOPIC — NEVER invent video IDs.
-Keep answers under 300 words."""
+            system_instruction = f"""You are {name}'s AI Buddy — a friendly, knowledgeable AI companion built into LearnPath AI. Answer ANY question helpfully and concisely. Use emojis & bullet points.
 
+User profile: skill={skill_level}, goal="{goal}".
+
+You are part of the LearnPath AI app which has these pages — guide users to the right one when relevant:
+• 🏠 Dashboard (Home): Set up your profile, generate your personalized AI learning roadmap
+• 🗺️ Roadmap: View your full week-by-week learning plan with all topics and progress
+• 📚 Courses: Browse available courses and learning materials for your domain
+• 📈 Progress: Track completed topics, hours studied, and your overall learning progress
+• 📝 Assessments: Take skill assessments to evaluate your knowledge level
+• 🎓 Certificates: View and download your earned completion certificates
+• 📊 Analytics: See detailed analytics — study streaks, time spent, performance charts
+• ⚙️ Settings: Update your profile, goals, preferences, and notification settings
+•  Buddy (this page): Chat with AI for any question, learning suggestions, playlists, advice
+
+When suggesting YouTube resources, ALWAYS use full URLs: https://www.youtube.com/results?search_query=YOUR+TOPIC
+NEVER write youtube.com/... without https://www. — always the full URL.
+Keep responses concise. For learning suggestions give 5 specific actionable ideas."""
+
+            # Only last 3 messages for speed
+            recent = st.session_state.chat_history[-4:-1] if len(st.session_state.chat_history) > 1 else []
             history_parts = ""
-            for msg in st.session_state.chat_history[:-1]:
-                role = "Coach" if msg["role"] == "ai" else "User"
-                history_parts += f"{role}: {msg['content'][:200]}\n"  # cap history
+            for msg in recent:
+                role = "Buddy" if msg["role"] == "ai" else "User"
+                history_parts += f"{role}: {msg['content'][:100]}\n"
 
-            import re
-            def fix_youtube_urls(text):
-                """Replace any fake YouTube watch URLs with safe search URLs."""
-                def replace_watch(m):
-                    full = m.group(0)
-                    # Extract query hint from surrounding text if possible
-                    return f"https://www.youtube.com/results?search_query={user_message.replace(' ', '+')}"
-                # Replace watch?v= URLs that have suspicious repeated patterns
-                text = re.sub(
-                    r'https?://www\.youtube\.com/watch\?v=[^\s)>"]+',
-                    replace_watch, text
-                )
-                return text
+            import time as _time
+            for model_name in _MODELS:
+                for attempt in range(2):  # up to 2 attempts per model
+                    try:
+                        user_prompt = f"User: {user_message}\nBuddy:"
+                        if history_parts:
+                            user_prompt = f"Recent chat:\n{history_parts}\n{user_prompt}"
 
-            for model_name, supports_sys in _MODELS:
-                try:
-                    user_prompt = f"User: {user_message}\nCoach:"
-                    if history_parts:
-                        user_prompt = f"Recent chat:\n{history_parts}\n{user_prompt}"
-
-                    if supports_sys:
                         contents = [genai_types.Content(
                             role="user",
                             parts=[genai_types.Part(text=user_prompt)]
                         )]
                         cfg = genai_types.GenerateContentConfig(
                             system_instruction=system_instruction,
-                            temperature=0.5, max_output_tokens=400
+                            temperature=0.5,
+                            max_output_tokens=300
                         )
-                    else:
-                        contents = [genai_types.Content(
-                            role="user",
-                            parts=[genai_types.Part(
-                                text=f"{system_instruction}\n\n{user_prompt}"
-                            )]
-                        )]
-                        cfg = genai_types.GenerateContentConfig(
-                            temperature=0.5, max_output_tokens=400
+                        resp = client.models.generate_content(
+                            model=model_name, contents=contents, config=cfg
                         )
-
-                    resp = client.models.generate_content(
-                        model=model_name, contents=contents, config=cfg
-                    )
-                    if resp and resp.text and resp.text.strip():
-                        return fix_youtube_urls(resp.text.strip())
-                except Exception:
-                    continue  # try next model
+                        if resp and resp.text and resp.text.strip():
+                            return fix_youtube_urls(resp.text.strip())
+                        break
+                    except Exception as e:
+                        err = str(e)
+                        if "503" in err or "UNAVAILABLE" in err:
+                            _time.sleep(2)  # wait and retry same model
+                            continue
+                        break  # quota/other error → try next model
 
         except Exception:
-            pass  # Fall through to mock logic
+            pass  # Fall through to offline fallback
 
+    # ── OFFLINE FALLBACK (no API key or all Gemini models failed) ──────────
+    msg_clean = user_message.lower().replace("?", "").replace("!", "")
+    stopwords = {"how", "what", "when", "where", "why", "can", "the", "is",
+                 "do", "to", "a", "an", "and", "am", "i", "me", "my", "for"}
+    topic_words = [w for w in msg_clean.split() if len(w) > 3 and w not in stopwords]
+    topic = "+".join(topic_words[:3]) if topic_words else goal.replace(" ", "+")
 
-    # ── FALLBACK MOCK LOGIC ────────────────────────────
-    msg_lower = user_message.lower()
-    
-    if any(word in msg_lower for word in ["hi", "hello", "hey", "hlo", "helo", "start", "begin", "sup", "yo"]):
-        greetings = [
-            f"🔥 YOOOO {name}!! You just made my day by showing up! Let's turn your goal of **'{goal}'** into REALITY! What are we crushing today? 🚀💪",
-            f"⚡ {name}! You absolute LEGEND! Every single day you show up is another day closer to mastering **'{goal}'**! The grind is REAL and so are YOU! What can I help you with? 🌟",
-            f"🎉 HEYYY {name}!! Welcome back, champion! People who show up like you are exactly the ones who WIN! Ready to level up your **{skill_level}** skills? Let's GO! 🎯",
-            f"🥳 OH WOW, {name} is in the house!! Your commitment to **'{goal}'** is honestly INSPIRING! Let's make today count — what's on your mind? 💬",
-            f"💫 {name}! I've been waiting for you! Champions don't wait for motivation, they CREATE it — and here you are! Let's talk about your **'{goal}'** journey! 🚀",
-            f"🌞 RISE AND THRIVE, {name}! You picked **'{goal}'** as your mission and that's already HALF the battle won! Ask me anything — let's build something AMAZING today! 💪",
-            f"💪 {name}!! Every expert was once a beginner, and every beginner who keeps showing up becomes an EXPERT — that's YOU right now! What shall we conquer today? 🔥",
-            f"🤩 Oh my GOODNESS, {name}!! You're here and that alone puts you ahead of 90% of people! Your goal of **'{goal}'** is waiting for you — let's chase it! 🎯",
-            f"🏆 {name}, you ABSOLUTE ROCKSTAR!! Showing up consistently is the #1 habit of successful people, and HERE YOU ARE! Tell me what's on your mind! 🤖",
-            f"🚀 BLAST OFF, {name}! Another day, another step closer to **'{goal}'**! The version of you six months from now will THANK you for today! What do you need? ⚡",
-        ]
-        return random.choice(greetings)
-    
-    if any(word in msg_lower for word in ["motiv", "encourage", "inspire", "boost", "confidence"]):
-        completed = len(user_data.get("completed", []))
-        return f"You're absolutely killing it, {name}! 💪 You've already completed **{completed} topics** — that shows real commitment and discipline! Remember:\n\n• Progress over perfection 🎯\n• Every small step counts ✨\n• Consistency beats intensity every time!\n\nKeep that momentum going! 🚀"
-    
-    # ────────────────────────────────────────────────────────────
-    # CHECK COMPREHENSIVE QUESTIONS FIRST (BEFORE GENERIC ONES!)
-    # ────────────────────────────────────────────────────────────
-    
-    # Check for sleep/tiredness questions (MUST BE BEFORE "WHEN" CHECK!)
-    if any(word in msg_lower for word in ["sleep", "sleepy", "tired", "energy", "fatigue", "rest", "insomnia", "awake", "fatigue"]):
-        return f"""🌙 **EXCELLENT QUESTION, {name}!** Here's my advice for sleep & energy:
-
-**IMMEDIATE SOLUTIONS:**
-• ⏰ Keep a consistent sleep schedule (sleep & wake same time daily)
-• 📵 No screens 30mins before bed (blue light ruins sleep)
-• 🏃 Exercise in morning/afternoon (NOT before bed!)
-• ☕ Cut caffeine after 2 PM
-• 🛏️ Make bedroom cool, dark, and quiet
-
-**DURING LOW-ENERGY TIMES:**
-• 💪 Do 5-10 min stretching/exercise to boost alertness
-• 🚶 Take a 10-min walk in sunlight
-• 💧 Drink water (dehydration causes fatigue!)
-• 🥗 Eat protein-rich snack (banana, yogurt, nuts)
-
-**FOR YOUR {skill_level.upper()} LEVEL:**
-• Study during HIGH-energy hours (usually morning)
-• Take 5-min breaks every 25mins (Pomodoro method!)
-• Mix subjects to keep brain engaged
-
-You've got this! 🚀 Sleep is crucial for learning! 💤✨"""
-    
-    # Check for focus/distraction questions
-    if any(word in msg_lower for word in ["focus", "distraction", "concentrate", "attention", "overwhelm"]):
-        return f"""🎯 **FOCUS HACK FOR {name}!** Here's how to crush it:
-
-**THE 4-STEP FOCUS FORMULA:**
-1. 🚫 Remove ALL distractions (phone, notifications, tabs)
-2. ⏱️ Use Pomodoro: 25min focus + 5min break
-3. 🎧 Try lo-fi/ambient background music
-4. 📊 Track your progress (motivates you!)
-
-**WHEN OVERWHELMED:**
-• ✏️ Write down EVERYTHING
-• 🎯 Pick just ONE thing to focus on
-• 🔢 Break it into micro-tasks (smaller = less scary!)
-• 🚀 Start with 10 minutes only
-
-**FOR YOUR GOAL: {goal}**
-• Focus on ONE concept at a time
-• Don't compare to others (your journey is unique!)
-• Celebrate small wins
-
-Pro tip: Your brain learns best with focused attention! 🧠⚡"""
-    
-    # Check for health/wellness questions
-    if any(word in msg_lower for word in ["health", "pain", "exercise", "diet", "wellness", "body", "strength", "weight", "fitness"]):
-        return f"""💪 **WELLNESS ADVICE FOR {name}!** Let's help:
-
-**EXERCISE TIPS:**
-• 🏃 Start small (10-15 min daily)
-• ✅ Consistency > intensity
-• 🧘 Mix cardio + strength + flexibility
-• 📱 Try YouTube workout channels (free!)
-
-**NUTRITION BASICS:**
-• 🥗 Eat real food (vegetables, protein, whole grains)
-• 💧 Drink 2-3L water daily
-• ⚖️ 80/20 rule (healthy 80% of time, treats 20%)
-• 🍎 Fuel your brain during study!
-
-**MENTAL WELLNESS:**
-• 🧘 Meditation (5 mins daily helps!)
-• 🌳 Time in nature (amazing for mood)
-• 😴 Sleep is NON-NEGOTIABLE
-• 🤝 Connect with people
-
-**LEARNING + HEALTH:**
-• Study in morning when body is fresh
-• Move frequently during study sessions
-• Eat brain food (nuts, berries, dark chocolate!)
-
-You're investing in your HEALTH AND YOUR MIND! 🎯💚"""
-    
-    # Check for goal/direction questions
-    if any(word in msg_lower for word in ["goal", "direction", "path", "career", "future", "what should i", "plan", "strategy"]):
-        return f"""🎯 **LET'S MAP YOUR FUTURE, {name}!** Here's what I think:
-
-**YOUR CURRENT GOAL: {goal}**
-**Your Skill Level: {skill_level}**
-**Daily Commitment: {st.session_state.get("hrs", 1.5)}h**
-
-**NEXT 30 DAYS:**
-📌 Master ONE core concept
-📌 Build a small project/practice
-📌 Join a community in your field
-📌 Track your progress
-
-**YOUR PATH:**
-1️⃣ Get BASICS solid (current phase!)
-2️⃣ Build something real (apply learning)
-3️⃣ Help others (teach = learn!)
-4️⃣ Specialize deeper (advanced topics)
-
-**SUCCESS FACTORS:**
-✅ Consistency (15 min daily > 2hr once/week!)
-✅ Practice (not just watching!)
-✅ Community (find your tribe!)
-✅ Patience (mastery takes time!)
-
-You're already on the right path by asking questions! 🚀🌟"""
-    
-    # Check for payment/finance/transaction questions
-    if any(word in msg_lower for word in ["payment", "paytm", "gpay", "phonepe", "transaction", "pay", "bill", "money", "transfer", "upi", "wallet", "bank", "card"]):
-        return f"""💳 **PAYMENT & TRANSACTION GUIDE FOR {name}!** Let me help:
-
-**POPULAR PAYMENT METHODS IN INDIA:**
-
-🏦 **UPI (Unified Payments Interface):**
-• Google Pay, PhonePe, BHIM, Paytm, WhatsApp Pay
-• Transfer directly using phone number or UPI ID
-• Quick, safe, and FREE
-• Works on all smartphones
-
-📱 **Paytm Specifically:**
-• Download Paytm app or use website
-• Link your bank account or add money
-• Send money to other Paytm users (instant!)
-• Pay bills, recharge, shop online
-• Very reliable and widely accepted
-
-🔐 **PAYMENT SAFETY TIPS:**
-• ✅ NEVER share OTP (One Time Password)
-• ✅ NEVER share credit card details via link/email
-• ✅ Only use official payment apps
-• ✅ Check HTTPS security before entering bank details
-• ✅ Turn ON 2-Factor Authentication always
-
-💰 **COMMON PAYMENT OPTIONS:**
-• **Direct Bank Transfer**: Traditional but slower
-• **Credit/Debit Card**: Fast online transactions
-• **Digital Wallets**: Google Pay, PhonePe, Paytm
-• **NEFT/RTGS**: For large amounts (takes time)
-
-**FOR YOUR PAYTM QUESTION:**
-1. Open Paytm app
-2. Tap "Send Money"
-3. Enter recipient's phone number or Paytm ID
-4. Enter amount
-5. Verify and confirm
-6. Done! Instant transfer! ✅
-
-Need help with a specific payment method? Just ask! 🚀💪"""
-    
-    if any(word in msg_lower for word in ["tip", "suggest", "recommend", "advice", "help", "how"]):
-        # When asking for help/tips/advice, suggest playlists from their goal or all playlists
-        youtube_playlists = {
-            "health": [
-                "🏃 **7-Minute Workout** - https://www.youtube.com/playlist?list=PLz6sWmhA_TqDEUGGqN_tVZt0w0Lpc5r-O",
-                "💪 **Complete Fitness Training** - https://www.youtube.com/playlist?list=PLz6sWmhA_TqDEUGGqN_tVZt0w0Lpc5r-O",
-                "🧘 **Yoga for Beginners** - https://www.youtube.com/playlist?list=PLui6Eyny-UzwxZeUzhGk-A440ir4WN5Ry",
-                "❤️ **Health Tips & Wellness** - https://www.youtube.com/results?search_query=health+wellness+full+course",
-            ],
-            "gardening": [
-                "🌱 **Complete Gardening Guide** - https://www.youtube.com/playlist?list=PLB1C7E27C4D1E15F5",
-                "🌿 **Urban Gardening** - https://www.youtube.com/playlist?list=PL9C3E0A05FDEDC2D0",
-                "🥕 **Vegetable Gardening** - https://www.youtube.com/playlist?list=PLgJlrKCJR8YawdX9K2G8h3DfEhJOlGdBC",
-                "🌻 **Indoor Plants Care** - https://www.youtube.com/results?search_query=indoor+plants+gardening+tutorial",
-            ],
-            "python": [
-                "💻 **Complete Python Course** - https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU",
-                "🐍 **Python for Beginners** - https://www.youtube.com/watch?v=rfscVS0vtik",
-                "🎯 **Python Data Science** - https://www.youtube.com/results?search_query=python+data+science+complete+course",
-                "🔧 **Python Projects** - https://www.youtube.com/results?search_query=python+projects+tutorial",
-            ],
-        }
-        
-        # Check if their goal matches any category
-        goal_lower = goal.lower()
-        response = f"🎬 **PERFECT, {name}!** 🌟 Here are some GREAT resources for you:\n\n"
-        found_match = False
-        
-        for keyword in youtube_playlists.keys():
-            if keyword in goal_lower or keyword in msg_lower:
-                response += f"**📺 {keyword.upper()} PLAYLISTS:\n\n**"
-                for playlist in youtube_playlists[keyword]:
-                    response += f"{playlist}\n"
-                response += "\n✨ **Great study materials!** Click and start learning! 🚀"
-                found_match = True
-                break
-        
-        if not found_match:
-            # If no match, show all available playlists
-            response += "**📺 Here are ALL our playlists to choose from:\n\n**"
-            for category, playlists in youtube_playlists.items():
-                response += f"**{category.upper()}:**\n"
-                for playlist in playlists:
-                    response += f"{playlist}\n"
-                response += "\n"
-            response += "✨ **Pick what interests you and start TODAY!** 🚀💪"
-        
-        return response
-    
-    if any(word in msg_lower for word in ["playlist", "video", "course", "youtube", "resource"]):
-        # YouTube only playlists for specific topics
-        youtube_playlists = {
-            # Health & Fitness
-            "health": [
-                "🏃 **7-Minute Workout** - https://www.youtube.com/playlist?list=PLz6sWmhA_TqDEUGGqN_tVZt0w0Lpc5r-O",
-                "💪 **Complete Fitness Training** - https://www.youtube.com/playlist?list=PLz6sWmhA_TqDEUGGqN_tVZt0w0Lpc5r-O",
-                "🧘 **Yoga for Beginners** - https://www.youtube.com/playlist?list=PLui6Eyny-UzwxZeUzhGk-A440ir4WN5Ry",
-                "❤️ **Health Tips & Wellness** - https://www.youtube.com/results?search_query=health+wellness+full+course",
-            ],
-            "fitness": [
-                "🏋️ **Strength Training** - https://www.youtube.com/playlist?list=PLgJlrKCJR8YZzcBcHIcM3F_RGE-rRVFKr",
-                "🤸 **HIIT Workouts** - https://www.youtube.com/playlist?list=PLgJlrKCJR8YawdX9K2G8h3DfEhJOlGdBC",
-                "🧘 **Full Body Fitness** - https://www.youtube.com/results?search_query=full+body+workout+complete+course",
-                "💪 **Home Workouts** - https://www.youtube.com/results?search_query=home+workout+routine+beginner",
-            ],
-            "nutrition": [
-                "🥗 **Healthy Eating Habits** - https://www.youtube.com/playlist?list=PLZ0d9rVSo90cWJCfS4yf9vSgGzNwlLMmK",
-                "🍎 **Nutrition Guide** - https://www.youtube.com/results?search_query=nutrition+guide+complete+course",
-                "🥤 **Meal Prep & Planning** - https://www.youtube.com/results?search_query=meal+prep+planning+tutorial",
-                "🥙 **Healthy Recipes** - https://www.youtube.com/results?search_query=healthy+recipes+cooking+full+course",
-            ],
-            "mental wellness": [
-                "🧘 **Mindfulness & Meditation** - https://www.youtube.com/playlist?list=PLZjMM19sNY82ADvkgNuWkkqmQkQC8-Vgv",
-                "💫 **Stress Management** - https://www.youtube.com/results?search_query=stress+management+techniques+tutorial",
-                "🧠 **Mental Health Tips** - https://www.youtube.com/results?search_query=mental+health+wellness+course",
-                "😌 **Anxiety Relief** - https://www.youtube.com/results?search_query=anxiety+relief+meditation+playlist",
-            ],
-            
-            # Gardening
-            "gardening": [
-                "🌱 **Complete Gardening Guide** - https://www.youtube.com/playlist?list=PLB1C7E27C4D1E15F5",
-                "🌿 **Urban Gardening** - https://www.youtube.com/playlist?list=PL9C3E0A05FDEDC2D0",
-                "🥕 **Vegetable Gardening** - https://www.youtube.com/playlist?list=PLgJlrKCJR8YawdX9K2G8h3DfEhJOlGdBC",
-                "🌻 **Indoor Plants Care** - https://www.youtube.com/results?search_query=indoor+plants+gardening+tutorial",
-            ],
-            "farming": [
-                "🌾 **Organic Farming Guide** - https://www.youtube.com/playlist?list=PLVzND6S6bDXJ4KrZcEV6xJ4F1b-Z8c0Q2",
-                "🌱 **Home Farming** - https://www.youtube.com/playlist?list=PLZ3BXgsvEQSjhVa6M5bhVjqVKNl4h_1w0",
-                "🥬 **Sustainable Gardening** - https://www.youtube.com/results?search_query=sustainable+gardening+complete+guide",
-                "🌳 **Terrace Gardening** - https://www.youtube.com/results?search_query=terrace+gardening+tutorial+full+course",
-            ],
-            
-            # Education & Skills
-            "programming": [
-                "💻 **Complete Python Course** - https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU",
-                "🐍 **Python for Beginners** - https://www.youtube.com/watch?v=rfscVS0vtik",
-                "⌨️ **Web Development** - https://www.youtube.com/playlist?list=PLillGF-RfqbYeckUaLj3f_LSIuuJPQ05c",
-                "🚀 **JavaScript Tutorial** - https://www.youtube.com/results?search_query=javascript+complete+course+beginners",
-            ],
-            "python": [
-                "💻 **Complete Python Course** - https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU",
-                "🐍 **Python for Beginners** - https://www.youtube.com/watch?v=rfscVS0vtik",
-                "🎯 **Python Data Science** - https://www.youtube.com/results?search_query=python+data+science+complete+course",
-                "🔧 **Python Projects** - https://www.youtube.com/results?search_query=python+projects+tutorial",
-            ],
-            "data science": [
-                "📊 **Data Science 101** - https://www.youtube.com/playlist?list=PLvKTlZyNTAQQyqnM1kkXEpzaPnMvYe8oZ",
-                "🤖 **Machine Learning** - https://www.youtube.com/results?search_query=machine+learning+complete+course+beginner",
-                "📈 **Data Analysis** - https://www.youtube.com/results?search_query=data+analysis+tutorial+complete",
-                "🐼 **Pandas Tutorial** - https://www.youtube.com/results?search_query=pandas+python+data+analysis+full+course",
-            ],
-            "language": [
-                "🌍 **English Speaking** - https://www.youtube.com/playlist?list=PLKAJfWzMyVMrWmw6s_H2D3h6t19DXjPHa",
-                "📚 **Spoken English** - https://www.youtube.com/playlist?list=PL7zKLbKi1yV30kWv0qJLOPw8EsvCYVmR-",
-                "🗣️ **Communication Skills** - https://www.youtube.com/results?search_query=communication+skills+tutorial+complete",
-                "👂 **Listening Practice** - https://www.youtube.com/results?search_query=english+listening+practice+course",
-            ],
-            "business": [
-                "💼 **Entrepreneurship 101** - https://www.youtube.com/playlist?list=PLKAJfWzMyVMqY37RYjNlBq0wMHVQk1lqH",
-                "📊 **Digital Marketing** - https://www.youtube.com/results?search_query=digital+marketing+complete+course",
-                "💰 **Personal Finance** - https://www.youtube.com/results?search_query=personal+finance+money+management+tutorial",
-                "🎯 **Sales Skills** - https://www.youtube.com/results?search_query=sales+skills+training+course",
-            ],
-            "design": [
-                "🎨 **Graphic Design** - https://www.youtube.com/results?search_query=graphic+design+tutorial+complete",
-                "✏️ **UI/UX Design** - https://www.youtube.com/results?search_query=ui+ux+design+course+beginner",
-                "🖼️ **Photo Editing** - https://www.youtube.com/results?search_query=photo+editing+tutorial+complete",
-                "🎬 **Video Editing** - https://www.youtube.com/results?search_query=video+editing+tutorial+full+course",
-            ],
-        }
-        
-        # Extract topic from user message
-        topic_found = None
-        for keyword in youtube_playlists.keys():
-            if keyword in msg_lower:
-                topic_found = keyword
-                break
-        
-        # If specific topic found, show those playlists; otherwise show all
-        if topic_found:
-            response = f"🎬 **AWESOME, {name}!** 🌟 Here are the BEST YouTube playlists for **{topic_found.upper()}**:\n\n"
-            response += f"**📺 {topic_found.upper()} PLAYLISTS:**\n"
-            for playlist in youtube_playlists[topic_found]:
-                response += f"{playlist}\n"
-            response += "\n✨ **Click any playlist to start learning NOW!** 🚀💪"
-        else:
-            # If unknown topic, try to extract it and generate YouTube search links
-            words = msg_lower.split()
-            requested_topic = None
-            
-            # Find the topic (words after "playlist", "video", "course", etc.)
-            request_words = ["playlist", "video", "course", "youtube", "resource"]
-            for i, word in enumerate(words):
-                if word in request_words:
-                    if i + 1 < len(words):
-                        requested_topic = " ".join(words[i+1:i+4])  # Get next 3 words as topic
-                    break
-            
-            if requested_topic and requested_topic.strip():
-                # Generate dynamic playlist suggestions for any topic
-                topic_clean = requested_topic.replace("playlist", "").replace("video", "").replace("course", "").strip()
-                topic_url = topic_clean.replace(" ", "+")
-                
-                response = f"🎬 **FANTASTIC, {name}!** 🌟 Here are YouTube playlists for **{topic_clean.upper()}**:\n\n"
-                response += f"**📺 {topic_clean.upper()} SEARCH RESULTS:**\n"
-                response += f"▶️ **Full Courses** - https://www.youtube.com/results?search_query={topic_url}+full+course\n"
-                response += f"🎓 **Beginner Tutorials** - https://www.youtube.com/results?search_query={topic_url}+for+beginners\n"
-                response += f"📚 **Complete Guide** - https://www.youtube.com/results?search_query={topic_url}+complete+guide+tutorial\n"
-                response += f"🚀 **Advanced Topics** - https://www.youtube.com/results?search_query={topic_url}+advanced+tutorial\n"
-                response += f"\n✨ **Click the links and pick any playlist!** 🚀💪"
-            else:
-                # Show ALL playlists as fallback
-                response = f"🎬 **AWESOME, {name}!** 🌟 Here are ALL the YouTube playlists available:\n\n"
-                for category, playlists in youtube_playlists.items():
-                    response += f"**📺 {category.upper()}:**\n"
-                    for playlist in playlists:
-                        response += f"{playlist}\n"
-                    response += "\n"
-                response += "✨ **Pick ANY category that interests you!** Click the links and start learning TODAY! 🚀💪"
-        
-        return response
-    
-    if any(word in msg_lower for word in ["schedule", "plan", "time", "how long", "when", "week"]):
-        hours = st.session_state.get("hrs", 1.5)
-        return f"Great timing question! Here's your personalized study plan, {name}:\n\n📅 **Daily**: {hours}h of focused learning\n✅ Consistency > intensity\n⏰ Study when you're most alert\n🔄 Mix theory with hands-on practice\n\nPick a fixed time each day and stick to it! You've got this! 🔥"
-    
-    # ── Fallback: AI answers any question + always adds playlists ──
     if api_key:
-        try:
-            _MODELS = [
-                ("gemini-2.0-flash",     True),
-                ("gemini-2.0-flash-lite", True),
-                ("gemma-3-27b-it",        False),
-                ("gemma-3-12b-it",        False),
-            ]
-            client = genai_new.Client(api_key=api_key)
-            sys_txt = f"You are {name}'s personal AI Coach. Answer any question expertly and helpfully with emojis and clear formatting."
-            prompt_txt = f"User asks: {user_message}\n\nAnswer comprehensively and helpfully:"
+        # Key exists but quota exhausted
+        response  = f"⚠️ **Hey {name}!** The Gemini API quota for today is used up.\n\n"
+        response += f"📌 **Your question:** _{user_message}_\n\n"
+        response += f"🔑 **Quick fix:** Get a fresh free API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and paste it in `.streamlit/secrets.toml`\n\n"
+        response += f"🎯 **Meanwhile, here are YouTube resources:**\n"
+    else:
+        response  = f"🔑 **Hey {name}!** No Gemini API key found.\n\n"
+        response += f"📌 **Your question:** _{user_message}_\n\n"
+        response += f"➡️ Get a **free** API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)\n\n"
+        response += f"🎯 **Meanwhile, here are YouTube resources:**\n"
 
-            for model_name, supports_sys in _MODELS:
-                try:
-                    if supports_sys:
-                        contents = [genai_types.Content(role="user", parts=[genai_types.Part(text=prompt_txt)])]
-                        cfg = genai_types.GenerateContentConfig(
-                            system_instruction=sys_txt, temperature=0.7, max_output_tokens=1024
-                        )
-                    else:
-                        contents = [genai_types.Content(
-                            role="user",
-                            parts=[genai_types.Part(text=f"[System]\n{sys_txt}\n\n{prompt_txt}")]
-                        )]
-                        cfg = genai_types.GenerateContentConfig(temperature=0.7, max_output_tokens=1024)
-
-                    resp = client.models.generate_content(model=model_name, contents=contents, config=cfg)
-                    if resp and resp.text and resp.text.strip():
-                        ai_response = resp.text.strip()
-                        # Always append YouTube resources
-                        msg_clean = user_message.lower().replace("?", "").replace("!", "")
-                        stopwords = {"how", "what", "when", "where", "why", "can", "the", "is", "do", "to", "a", "an", "and", "am"}
-                        topic_words = [w for w in msg_clean.split() if len(w) > 3 and w not in stopwords]
-                        topic = "+".join(topic_words[:2]) if topic_words else "tutorial"
-                        ai_response += f"\n\n**📺 YouTube Resources:**\n"
-                        ai_response += f"🎬 [Full Tutorial](https://www.youtube.com/results?search_query={topic}+tutorial+full+course)\n"
-                        ai_response += f"🎬 [For Beginners](https://www.youtube.com/results?search_query={topic}+for+beginners)\n"
-                        ai_response += f"🎬 [Complete Guide](https://www.youtube.com/results?search_query={topic}+complete+guide)\n"
-                        ai_response += f"🎬 [Advanced Tips](https://www.youtube.com/results?search_query={topic}+advanced+tips)\n"
-                        return ai_response
-                except Exception:
-                    continue
-        except Exception:
-            pass
-
-            
-        except Exception as e:
-            pass  # Fall through to playlist fallback
-    
-    # Fallback: suggest playlists for any request
-    youtube_playlists = {
-        "health": [
-            "🏃 **7-Minute Workout** - https://www.youtube.com/playlist?list=PLz6sWmhA_TqDEUGGqN_tVZt0w0Lpc5r-O",
-            "💪 **Complete Fitness Training** - https://www.youtube.com/playlist?list=PLz6sWmhA_TqDEUGGqN_tVZt0w0Lpc5r-O",
-            "🧘 **Yoga for Beginners** - https://www.youtube.com/playlist?list=PLui6Eyny-UzwxZeUzhGk-A440ir4WN5Ry",
-            "❤️ **Health Tips & Wellness** - https://www.youtube.com/results?search_query=health+wellness+full+course",
-        ],
-        "gardening": [
-            "🌱 **Complete Gardening Guide** - https://www.youtube.com/playlist?list=PLB1C7E27C4D1E15F5",
-            "🌿 **Urban Gardening** - https://www.youtube.com/playlist?list=PL9C3E0A05FDEDC2D0",
-            "🥕 **Vegetable Gardening** - https://www.youtube.com/playlist?list=PLgJlrKCJR8YawdX9K2G8h3DfEhJOlGdBC",
-            "🌻 **Indoor Plants Care** - https://www.youtube.com/results?search_query=indoor+plants+gardening+tutorial",
-        ],
-        "python": [
-            "💻 **Complete Python Course** - https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU",
-            "🐍 **Python for Beginners** - https://www.youtube.com/watch?v=rfscVS0vtik",
-            "🎯 **Python Data Science** - https://www.youtube.com/results?search_query=python+data+science+complete+course",
-            "🔧 **Python Projects** - https://www.youtube.com/results?search_query=python+projects+tutorial",
-        ],
-    }
-    
-    # Check if goal matches any category
-    goal_lower = goal.lower()
-    response = f"🎬 **GREAT QUESTION, {name}!** 🌟 For your goal of **{goal}**, here are some AWESOME resources:\n\n"
-    found_match = False
-    
-    for keyword in youtube_playlists.keys():
-        if keyword in goal_lower:
-            response += f"**📺 {keyword.upper()} PLAYLISTS:\n\n**"
-            for playlist in youtube_playlists[keyword]:
-                response += f"{playlist}\n"
-            response += "\n✨ **Start with any playlist today!** 🚀"
-            found_match = True
-            break
-    
-    # ── FINAL FALLBACK: Show all available playlists ──────────────────────────
-    response = f"🎬 **FANTASTIC QUESTION, {name}!** 🌟 Here are some resources I recommend:\n\n"
-    response += "**📺 AWESOME PLAYLISTS TO EXPLORE:**\n\n"
-    
-    youtube_playlists_final = {
-        "health": ["🏃 **7-Minute Workout** - https://www.youtube.com/playlist?list=PLz6sWmhA_TqDEUGGqN_tVZt0w0Lpc5r-O"],
-        "gardening": ["🌱 **Complete Gardening** - https://www.youtube.com/playlist?list=PLB1C7E27C4D1E15F5"],
-        "python": ["💻 **Complete Python** - https://www.youtube.com/playlist?list=PL-osiE80TeTt2d9bfVyTiXJA-UTHn6WwU"],
-    }
-    
-    for category, playlists in youtube_playlists_final.items():
-        for playlist in playlists:
-            response += f"{playlist}\n"
-    
-    response += f"\n✨ **Any other questions? I'm ready to help with ANYTHING!** 🚀💪"
+    response += f"▶️ [Full Tutorial](https://www.youtube.com/results?search_query={topic}+tutorial+full+course)\n"
+    response += f"🎓 [Beginner Guide](https://www.youtube.com/results?search_query={topic}+for+beginners)\n"
+    response += f"📚 [Complete Course](https://www.youtube.com/results?search_query={topic}+complete+course)\n"
     return response
 
 def generate_tips(skill_level, age, completed, total_topics, domain_topics):
@@ -828,68 +423,192 @@ def on_enter():
         st.session_state.pending_msg = val
         st.session_state.input_key += 1
 
-# ── HERO HEADER ───────────────────────────────────────────
+# ── GOAL CHECK ───────────────────────────────────────────────
+goal_is_set = user_goal and user_goal not in ("No goal set", "", "no goal set")
+
+# ── HERO HEADER ──────────────────────────────────────────────
 st.markdown(f"""
-  <div style="margin-bottom:18px">
-    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:900;
-                background:linear-gradient(135deg,#7c3aed,#a855f7,#c084fc);
-                -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🤖 Your AI Coach</div>
-    <div style="color:#6d28d9;font-size:.85rem;margin-top:4px;opacity:0.75">
-      Get personalized guidance, tips, and recommendations for your learning journey</div>
+  <div style="margin-bottom:18px;display:flex;align-items:center;gap:14px">
+    <div style="flex-shrink:0;filter:drop-shadow(0 0 10px rgba(239,68,68,0.6))">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:54px;height:54px">
+        <defs>
+          <linearGradient id="hg" x1="14" y1="18" x2="50" y2="50" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#3b1515"/>
+            <stop offset="100%" stop-color="#1e1010"/>
+          </linearGradient>
+          <radialGradient id="eg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fca5a5"/>
+            <stop offset="100%" stop-color="#ef4444"/>
+          </radialGradient>
+        </defs>
+        <!-- Antenna stem -->
+        <rect x="30" y="7" width="4" height="11" rx="2" fill="#dc2626"/>
+        <!-- Antenna ball -->
+        <circle cx="32" cy="6" r="4" fill="#ef4444"/>
+        <circle cx="32" cy="6" r="2" fill="#fca5a5"/>
+        <!-- Head -->
+        <rect x="12" y="18" width="40" height="30" rx="8" fill="url(#hg)" stroke="#ef4444" stroke-width="1.5"/>
+        <!-- Left eye -->
+        <circle cx="23" cy="33" r="6" fill="#0f0606" stroke="#dc2626" stroke-width="1.5"/>
+        <circle cx="23" cy="33" r="3.2" fill="url(#eg)"/>
+        <circle cx="21" cy="31" r="1" fill="white" opacity="0.6"/>
+        <!-- Right eye -->
+        <circle cx="41" cy="33" r="6" fill="#0f0606" stroke="#dc2626" stroke-width="1.5"/>
+        <circle cx="41" cy="33" r="3.2" fill="url(#eg)"/>
+        <circle cx="39" cy="31" r="1" fill="white" opacity="0.6"/>
+        <!-- Mouth grille -->
+        <rect x="22" y="42" width="20" height="3" rx="1.5" fill="#ef4444" opacity="0.8"/>
+        <rect x="25" y="42" width="2" height="3" rx="1" fill="#fca5a5"/>
+        <rect x="31" y="42" width="2" height="3" rx="1" fill="#fca5a5"/>
+        <rect x="37" y="42" width="2" height="3" rx="1" fill="#fca5a5"/>
+        <!-- Left ear -->
+        <rect x="5" y="26" width="7" height="12" rx="3.5" fill="#1e1010" stroke="#ef4444" stroke-width="1.5"/>
+        <rect x="7" y="29" width="3" height="6" rx="1.5" fill="#ef4444" opacity="0.5"/>
+        <!-- Right ear -->
+        <rect x="52" y="26" width="7" height="12" rx="3.5" fill="#1e1010" stroke="#ef4444" stroke-width="1.5"/>
+        <rect x="54" y="29" width="3" height="6" rx="1.5" fill="#ef4444" opacity="0.5"/>
+      </svg>
+    </div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.8rem;font-weight:900;
+                  color:white;line-height:1.1">Your Buddy</div>
+      <div style="color:#e0e7ff;font-size:.83rem;margin-top:3px">
+        Your personal AI companion — ask me anything, anytime!</div>
+    </div>
   </div>""", unsafe_allow_html=True)
 
-# ── FIRST-TIME ONBOARDING ────────────────────────────────────
-if st.session_state.first_visit and user_goal:
-    st.markdown(f"""
-    <div class="onboard-box">
-      <div class="onboard-title">👋 Welcome to Your AI Coach!</div>
-      <div class="onboard-desc">
-        I'm here to help you achieve your goal of <strong>{user_goal}</strong>. Ask me anything about your learning journey!
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
-    st.session_state.first_visit = False
+# ── APP GUIDE (4+4 grid) ─────────────────────────────────────
+st.markdown("""
+<div style="margin-bottom:14px">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:700;
+              color:#a5b4fc;margin-bottom:8px;letter-spacing:.2px">
+    📱 Explore the App — Click any section to navigate
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+    <a href="/" target="_self" style="text-decoration:none">
+      <div style="background:#1e2540;border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:1rem">🏠</span>
+        <div><div style="font-size:.72rem;font-weight:700;color:#e0e7ff">Dashboard</div>
+        <div style="font-size:.6rem;color:#818cf8">Profile &amp; roadmap</div></div>
+      </div></a>
+    <a href="/Roadmap" target="_self" style="text-decoration:none">
+      <div style="background:#1e2540;border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:1rem">🗺️</span>
+        <div><div style="font-size:.72rem;font-weight:700;color:#e0e7ff">Roadmap</div>
+        <div style="font-size:.6rem;color:#818cf8">Week-by-week plan</div></div>
+      </div></a>
+    <a href="/Courses" target="_self" style="text-decoration:none">
+      <div style="background:#1e2540;border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:1rem">📚</span>
+        <div><div style="font-size:.72rem;font-weight:700;color:#e0e7ff">Courses</div>
+        <div style="font-size:.6rem;color:#818cf8">Browse materials</div></div>
+      </div></a>
+    <a href="/Progress" target="_self" style="text-decoration:none">
+      <div style="background:#1e2540;border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:1rem">📈</span>
+        <div><div style="font-size:.72rem;font-weight:700;color:#e0e7ff">Progress</div>
+        <div style="font-size:.6rem;color:#818cf8">Track completion</div></div>
+      </div></a>
+    <a href="/Assessments" target="_self" style="text-decoration:none">
+      <div style="background:#1e2540;border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:1rem">📝</span>
+        <div><div style="font-size:.72rem;font-weight:700;color:#e0e7ff">Assessments</div>
+        <div style="font-size:.6rem;color:#818cf8">Test your knowledge</div></div>
+      </div></a>
+    <a href="/Certificates" target="_self" style="text-decoration:none">
+      <div style="background:#1e2540;border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:1rem">🎓</span>
+        <div><div style="font-size:.72rem;font-weight:700;color:#e0e7ff">Certificates</div>
+        <div style="font-size:.6rem;color:#818cf8">Download certificates</div></div>
+      </div></a>
+    <a href="/Analytics" target="_self" style="text-decoration:none">
+      <div style="background:#1e2540;border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:1rem">📊</span>
+        <div><div style="font-size:.72rem;font-weight:700;color:#e0e7ff">Analytics</div>
+        <div style="font-size:.6rem;color:#818cf8">Streaks &amp; charts</div></div>
+      </div></a>
+    <a href="/Settings" target="_self" style="text-decoration:none">
+      <div style="background:#1e2540;border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:7px">
+        <span style="font-size:1rem">⚙️</span>
+        <div><div style="font-size:.72rem;font-weight:700;color:#e0e7ff">Settings</div>
+        <div style="font-size:.6rem;color:#818cf8">Profile &amp; preferences</div></div>
+      </div></a>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
-# ── AI COACH TIPS & RECOMMENDATIONS ──────────────────────────
+
+# ── AI COACH LAYOUT: Chat (left) + Playlist Suggestions (right) ──
 col1, col2 = st.columns([2, 1])
 
 with col1:
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">💬 Chat with your AI Coach</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card-sub">Ask anything — tips, playlists, schedules, motivation! Press Enter or click Send.</div>', unsafe_allow_html=True)
-
-    # Display chat history
-    st.markdown('<div class="chat-wrap">', unsafe_allow_html=True)
-    if not st.session_state.chat_history:
-        st.markdown("""
-        <div style="text-align:center; padding:20px 20px 16px;">
-          <div style="font-size:2.2rem; margin-bottom:8px;">🤖</div>
-          <div style="font-size:.95rem; font-weight:700; color:#7c3aed; margin-bottom:4px;">Hey! I'm your AI Coach!</div>
-          <div style="font-size:.78rem; color:#6d28d9; opacity:0.7;">Type below and press <b style='color:#7c3aed'>Enter</b> or click <b style='color:#7c3aed'>Send</b> 👇</div>
+    # ── Compact goal reminder (aligned inside this card) ────────
+    if not goal_is_set:
+        st.markdown(f"""
+        <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.35);
+                    border-radius:12px;padding:11px 14px;margin-bottom:14px;
+                    position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;
+                      background:linear-gradient(90deg,#4f46e5,#818cf8,#4f46e5);
+                      background-size:200%;animation:shimmer 2s infinite"></div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <div style="font-size:1.3rem">🎯</div>
+            <div style="flex:1;min-width:160px">
+              <div style="font-size:.8rem;font-weight:700;color:#e0e7ff;margin-bottom:2px">
+                Hi {user_name}! Set your goal for personalized Buddy responses
+              </div>
+              <div style="font-size:.68rem;color:#a5b4fc">
+                Unlock tailored suggestions, playlists &amp; milestone tracking
+              </div>
+            </div>
+            <a href="/" target="_self"
+               style="display:inline-block;background:linear-gradient(135deg,#4f46e5,#6366f1);
+                      color:white;padding:6px 14px;border-radius:8px;text-decoration:none;
+                      font-weight:700;font-size:.72rem;white-space:nowrap;
+                      box-shadow:0 3px 10px rgba(99,102,241,.4)">
+              🎯 Set Goal →
+            </a>
+          </div>
         </div>
         """, unsafe_allow_html=True)
+
+    # ── First-time onboarding ────────────────────────────────────
+    if st.session_state.first_visit and goal_is_set:
+        st.markdown(f"""
+        <div class="onboard-box">
+          <div class="onboard-title">👋 Hey! I'm your Buddy!</div>
+          <div class="onboard-desc">
+            I'm here to help you achieve your goal of <strong>{user_goal}</strong>. Ask me anything! 🚀
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.session_state.first_visit = False
+
+    st.markdown('<div style="font-family:\'Plus Jakarta Sans\',sans-serif;font-size:.95rem;font-weight:800;color:#e0e7ff;margin-bottom:2px">💬 Chat with your Buddy</div><div style="font-size:.74rem;color:#818cf8;margin-bottom:12px">Ask me anything — I\'ll answer every question! Press Enter or click Send 🚀</div>', unsafe_allow_html=True)
+
+    # Build entire chat HTML in one block to avoid orphaned div elements
+    if not st.session_state.chat_history:
+        chat_html = '<div class="chat-wrap" style="min-height:100px;text-align:center;padding:18px">'
+        chat_html += '<div style="font-size:1.8rem;margin-bottom:6px">🤖</div>'
+        chat_html += '<div style="font-size:.9rem;font-weight:700;color:#e0e7ff">Hey! I\'m your Buddy!</div>'
+        chat_html += '<div style="font-size:.74rem;color:#a5b4fc;margin-top:4px">Type below and press <b>Enter</b> or click <b>Send</b> 👇</div>'
+        chat_html += '</div>'
     else:
+        chat_html = '<div class="chat-wrap">'
         for msg in st.session_state.chat_history:
             if msg["role"] == "user":
-                st.markdown(f"""
-                <div class="chat-bubble-wrap-user">
-                  <div class="bubble-user">{msg["content"]}</div>
-                  <div class="avatar avatar-user">👤</div>
-                </div>""", unsafe_allow_html=True)
+                chat_html += f'<div class="chat-bubble-wrap-user"><div class="bubble-user">{msg["content"]}</div><div class="avatar avatar-user">👤</div></div>'
             else:
-                st.markdown(f"""
-                <div class="chat-bubble-wrap-ai">
-                  <div class="avatar avatar-ai">🤖</div>
-                  <div class="bubble-ai">{msg["content"]}</div>
-                </div>""", unsafe_allow_html=True)
-    st.markdown('</div>', unsafe_allow_html=True)
+                chat_html += f'<div class="chat-bubble-wrap-ai"><div class="avatar avatar-ai">🤖</div><div class="bubble-ai">{msg["content"]}</div></div>'
+        chat_html += '</div>'
+    st.markdown(chat_html, unsafe_allow_html=True)
 
     # ── Handle pending message (sent via Enter key) ──────────────
     if st.session_state.pending_msg:
         msg_to_send = st.session_state.pending_msg
         st.session_state.pending_msg = ""
         st.session_state.chat_history.append({"role": "user", "content": msg_to_send})
-        with st.spinner("🤖 Thinking..."):
+        with st.spinner("🤖 Buddy is thinking..."):
             ai_response = generate_coach_response(msg_to_send, user_name, user_goal, user_skill, user_data, gemini_api_key)
         st.session_state.chat_history.append({"role": "ai", "content": ai_response})
         st.rerun()
@@ -903,40 +622,33 @@ with col1:
         on_change=on_enter
     )
 
-    # Send button row + Clear button (red, separate)
-    col_send, col_clear = st.columns([5, 1])
+    # Send + Clear — equal width so Clear never wraps
+    col_send, col_clear = st.columns([3, 1])
     with col_send:
-        if st.button("🚀  Send Message", use_container_width=True):
-            if user_input.strip():
-                st.session_state.chat_history.append({"role": "user", "content": user_input})
-                with st.spinner("🤖 Thinking..."):
-                    ai_response = generate_coach_response(user_input, user_name, user_goal, user_skill, user_data, gemini_api_key)
-                st.session_state.chat_history.append({"role": "ai", "content": ai_response})
-                st.session_state.input_key += 1
-                st.rerun()
-
+        send_clicked = st.button("🚀 Send Message", use_container_width=True, key="send_btn")
+        if send_clicked and user_input.strip():
+            st.session_state.chat_history.append({"role": "user", "content": user_input})
+            with st.spinner("🤖 Thinking..."):
+                ai_response = generate_coach_response(user_input, user_name, user_goal, user_skill, user_data, gemini_api_key)
+            st.session_state.chat_history.append({"role": "ai", "content": ai_response})
+            st.session_state.input_key += 1
+            st.rerun()
     with col_clear:
-        # Wrap in a div so we can target only this button for red styling
-        st.markdown('<div class="clear-btn">', unsafe_allow_html=True)
-        if st.button("🗑️ Clear", use_container_width=True):
+        if st.button("🗑️ Clear Chat", use_container_width=True, key="clear_btn"):
             st.session_state.chat_history = []
             st.session_state.input_key += 1
             st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ── AGE-BASED PLAYLIST SUGGESTIONS ──────────────────────────
+# ── AGE-BASED PLAYLIST SUGGESTIONS (right column) ────────────
 with col2:
-    st.markdown('<div class="card" style="height:100%">', unsafe_allow_html=True)
-    st.markdown('<div class="card-title">🎧 Playlist Suggestions by Category</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card-sub">Personalized playlists for your age group & interests</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="card-title">🎧 Playlist Suggestions by Category</div>
+    <div class="card-sub">Personalized playlists for your age group &amp; interests</div>
+    """, unsafe_allow_html=True)
 
-    # Generate comprehensive age-group specific playlists with categories
     def get_categorized_playlists(age, goal, skill):
         """Generate age-appropriate playlists across health, gardening, and education categories."""
-        
-        if age < 18:  # Teens (13-17)
+        if age < 18:
             return {
                 "🌱 Gardening & Nature": [
                     {"label": "Urban Gardening for Teens", "icon": "🌿", "url": "https://www.youtube.com/results?search_query=urban+gardening+for+teenagers"},
@@ -954,7 +666,7 @@ with col2:
                     {"label": "Crash Course Videos", "icon": "⚡", "url": "https://www.youtube.com/results?search_query=crash+course+learning"},
                 ],
             }
-        elif age < 25:  # Young Adults (18-24)
+        elif age < 25:
             return {
                 "🌱 Gardening & Sustainability": [
                     {"label": "Sustainable Gardening", "icon": "🌍", "url": "https://www.youtube.com/results?search_query=sustainable+gardening+tutorial"},
@@ -972,7 +684,7 @@ with col2:
                     {"label": "Skill Development", "icon": "🚀", "url": f"https://www.udemy.com/courses/search/?q={goal.replace(' ','+')}"},
                 ],
             }
-        elif age < 40:  # Working Professionals (25-39)
+        elif age < 40:
             return {
                 "🌱 Gardening & Home": [
                     {"label": "Home Garden Design", "icon": "🏡", "url": "https://www.youtube.com/results?search_query=home+garden+design+ideas"},
@@ -990,7 +702,7 @@ with col2:
                     {"label": "Industry Certifications", "icon": "🏆", "url": "https://www.coursera.org/search?query=professional+certificate"},
                 ],
             }
-        else:  # 40+ (Mature Learners)
+        else:
             return {
                 "🌱 Gardening & Relaxation": [
                     {"label": "Therapeutic Gardening", "icon": "🌸", "url": "https://www.youtube.com/results?search_query=therapeutic+gardening+seniors"},
@@ -1010,29 +722,25 @@ with col2:
             }
 
     playlists_by_category = get_categorized_playlists(user_age, user_goal, user_skill)
-    
+
     for category, playlists in playlists_by_category.items():
         st.markdown(f"""
         <div style="margin-bottom:16px;">
-          <div style="font-size:.9rem;font-weight:700;color:#134e4a;margin-bottom:10px;">{category}</div>
+          <div style="font-size:.85rem;font-weight:700;color:#a5b4fc;margin-bottom:8px;letter-spacing:.3px">{category}</div>
         </div>
         """, unsafe_allow_html=True)
-        
         for pl in playlists:
             st.markdown(f"""
             <a href="{pl['url']}" target="_blank" style="text-decoration:none;display:block;margin-bottom:8px;">
-              <div style="display:flex;align-items:center;gap:10px;background:white;border:1.5px solid #ccfbf1;
-                          border-radius:10px;padding:12px 14px;
-                          transition:all .2s;cursor:pointer;
-                          box-shadow:0 1px 4px rgba(13,148,136,.07);
-                          hover:box-shadow:0 4px 12px rgba(13,148,136,.15);">
+              <div style="display:flex;align-items:center;gap:10px;background:#1e2540;
+                          border:1px solid rgba(99,102,241,0.2);
+                          border-radius:10px;padding:12px 14px;cursor:pointer;">
                 <div style="font-size:1.1rem;">{pl['icon']}</div>
                 <div style="flex:1;">
-                  <div style="font-size:.8rem;font-weight:700;color:#134e4a;">{pl['label']}</div>
+                  <div style="font-size:.8rem;font-weight:700;color:#e0e7ff;">{pl['label']}</div>
                 </div>
-                <div style="color:#0d9488;font-size:.8rem;font-weight:600;">→</div>
+                <div style="color:#818cf8;font-size:.85rem;font-weight:600;">→</div>
               </div>
             </a>
             """, unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+
